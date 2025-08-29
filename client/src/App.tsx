@@ -66,13 +66,13 @@ const Signup: FC<AuthFormProps> = ({ onSwitchPage, onLoginSuccess }) => {
   const [resendTimer, setResendTimer] = useState(0);
 
   useEffect(() => {
-    let timerId: NodeJS.Timeout;
+    let timerId:  number | undefined;
     if (resendTimer > 0) {
-      timerId = setTimeout(() => {
+      timerId = window.setTimeout(() => {
         setResendTimer(resendTimer - 1);
       }, 1000);
     }
-    return () => clearTimeout(timerId);
+    return () => window.clearTimeout(timerId);
   }, [resendTimer]);
 
   const handleRequestOtp = async (e: FormEvent) => {
@@ -201,13 +201,13 @@ const Login: FC<AuthFormProps> = ({ onSwitchPage, onLoginSuccess }) => {
   const [resendTimer, setResendTimer] = useState(0);
 
   useEffect(() => {
-    let timerId: NodeJS.Timeout;
+    let timerId:  number | undefined;;
     if (resendTimer > 0) {
-      timerId = setTimeout(() => {
+      timerId = window.setTimeout(() => {
         setResendTimer(resendTimer - 1);
       }, 1000);
     }
-    return () => clearTimeout(timerId);
+    return () => window.clearTimeout(timerId);
   }, [resendTimer]);
 
   const handleRequestOtp = async (e: FormEvent) => {
