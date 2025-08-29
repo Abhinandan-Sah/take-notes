@@ -15,6 +15,10 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 app.use(express.json());
 app.use(cors());
 
+app.get("/", (req: Request, res: Response) => {
+  res.send("Server is up and running!");
+});
+
 mongoose.connect(MONGO_URI)
   .then(() => console.log('MongoDB connected successfully.'))
   .catch(err => console.error('MongoDB connection error:', err));
