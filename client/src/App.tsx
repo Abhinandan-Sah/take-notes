@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import type { FC, ChangeEvent, FormEvent } from 'react';
 import axios from 'axios';
 
 const PageEnum = {
@@ -7,8 +8,8 @@ const PageEnum = {
   DASHBOARD: 'dashboard',
 };
 
-// const API_BASE_URL = 'http://localhost:5000/api';
-const API_BASE_URL = 'https://take-notes-sigma.vercel.app/api';
+const API_BASE_URL ='http://localhost:5000/api';
+// const API_BASE_URL ='https://take-notes-sigma.vercel.app/api';
 
 interface User {
   _id: string;
@@ -24,7 +25,17 @@ interface Note {
   createdAt: string;
 }
 
-const Input = ({ label, type, value, onChange, placeholder, error, disabled }) => (
+interface InputProps {
+  label: string;
+  type: string;
+  value: string;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  placeholder: string;
+  error: string | null;
+  disabled: boolean;
+}
+
+const Input: FC<InputProps> = ({ label, type, value, onChange, placeholder, error, disabled }) => (
   <div className="flex flex-col mb-4">
     <label className="text-sm font-semibold text-gray-700 mb-1">{label}</label>
     <input
@@ -39,7 +50,12 @@ const Input = ({ label, type, value, onChange, placeholder, error, disabled }) =
   </div>
 );
 
-const Signup = ({ onSwitchPage, onLoginSuccess }) => {
+interface AuthFormProps {
+  onSwitchPage: (page: string) => void;
+  onLoginSuccess: () => void;
+}
+
+const Signup: FC<AuthFormProps> = ({ onSwitchPage, onLoginSuccess }) => {
   const [name, setName] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [email, setEmail] = useState('');
@@ -50,7 +66,7 @@ const Signup = ({ onSwitchPage, onLoginSuccess }) => {
   const [resendTimer, setResendTimer] = useState(0);
 
   useEffect(() => {
-    let timerId;
+    let timerId: NodeJS.Timeout;
     if (resendTimer > 0) {
       timerId = setTimeout(() => {
         setResendTimer(resendTimer - 1);
@@ -59,7 +75,7 @@ const Signup = ({ onSwitchPage, onLoginSuccess }) => {
     return () => clearTimeout(timerId);
   }, [resendTimer]);
 
-  const handleRequestOtp = async (e) => {
+  const handleRequestOtp = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -67,8 +83,8 @@ const Signup = ({ onSwitchPage, onLoginSuccess }) => {
       const response = await axios.post(`${API_BASE_URL}/auth/request-signup-otp`, { name, dateOfBirth, email });
       if (response.data.success) {
         setIsOTPSent(true);
-        setResendTimer(60); 
-        setError(''); 
+        setResendTimer(60);
+        setError('');
       }
     } catch (err: unknown) {
       if (axios.isAxiosError(err) && err.response) {
@@ -81,7 +97,7 @@ const Signup = ({ onSwitchPage, onLoginSuccess }) => {
     }
   };
 
-  const handleSignupWithOtp = async (e) => {
+  const handleSignupWithOtp = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -115,16 +131,16 @@ const Signup = ({ onSwitchPage, onLoginSuccess }) => {
             onChange={(e) => setName(e.target.value)}
             placeholder="Jonas Khanwald"
             disabled={isOTPSent}
-            error={null} 
+            error={null}
           />
           <Input
             label="Date of Birth"
-            type="text" 
+            type="text"
             value={dateOfBirth}
             onChange={(e) => setDateOfBirth(e.target.value)}
             placeholder="11 December 1997"
             disabled={isOTPSent}
-            error={null} 
+            error={null}
           />
           <Input
             label="Email"
@@ -133,7 +149,7 @@ const Signup = ({ onSwitchPage, onLoginSuccess }) => {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="jonas_kahnwald@gmail.com"
             disabled={isOTPSent}
-            error={null} 
+            error={null}
           />
           {isOTPSent && (
             <div className="flex flex-col mb-4">
@@ -176,7 +192,7 @@ const Signup = ({ onSwitchPage, onLoginSuccess }) => {
   );
 };
 
-const Login = ({ onSwitchPage, onLoginSuccess }) => {
+const Login: FC<AuthFormProps> = ({ onSwitchPage, onLoginSuccess }) => {
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
@@ -185,7 +201,7 @@ const Login = ({ onSwitchPage, onLoginSuccess }) => {
   const [resendTimer, setResendTimer] = useState(0);
 
   useEffect(() => {
-    let timerId;
+    let timerId: NodeJS.Timeout;
     if (resendTimer > 0) {
       timerId = setTimeout(() => {
         setResendTimer(resendTimer - 1);
@@ -194,7 +210,7 @@ const Login = ({ onSwitchPage, onLoginSuccess }) => {
     return () => clearTimeout(timerId);
   }, [resendTimer]);
 
-  const handleRequestOtp = async (e) => {
+  const handleRequestOtp = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -216,7 +232,7 @@ const Login = ({ onSwitchPage, onLoginSuccess }) => {
     }
   };
 
-  const handleLoginWithOtp = async (e) => {
+  const handleLoginWithOtp = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -300,14 +316,22 @@ const Login = ({ onSwitchPage, onLoginSuccess }) => {
   );
 };
 
-const Dashboard = ({ user, notes, onLogout, onAddNote, onDeleteNote }) => {
+interface DashboardProps {
+  user: User;
+  notes: Note[];
+  onLogout: () => void;
+  onAddNote: () => void;
+  onDeleteNote: () => void;
+}
+
+const Dashboard: FC<DashboardProps> = ({ user, notes, onLogout, onAddNote, onDeleteNote }) => {
   const [newNoteTitle, setNewNoteTitle] = useState('');
   const [newNoteContent, setNewNoteContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showCreateNoteModal, setShowCreateNoteModal] = useState(false);
 
-  const handleAddNote = async (e) => {
+  const handleAddNote = async (e: FormEvent) => {
     e.preventDefault();
     if (!newNoteTitle || !newNoteContent) {
       setError('Title and content are required.');
@@ -338,7 +362,7 @@ const Dashboard = ({ user, notes, onLogout, onAddNote, onDeleteNote }) => {
     }
   };
 
-  const handleDeleteNote = async (noteId) => {
+  const handleDeleteNote = async (noteId: string) => {
     try {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('No token found');
@@ -346,7 +370,7 @@ const Dashboard = ({ user, notes, onLogout, onAddNote, onDeleteNote }) => {
         `${API_BASE_URL}/notes/delete/${noteId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      onDeleteNote(); 
+      onDeleteNote();
     } catch (err: unknown) {
       if (axios.isAxiosError(err) && err.response) {
         setError(err.response.data.message || 'Failed to delete note.');
@@ -373,7 +397,7 @@ const Dashboard = ({ user, notes, onLogout, onAddNote, onDeleteNote }) => {
             <h2 className="text-xl sm:text-2xl font-bold">Welcome, {user.name} !</h2>
             <p className="text-gray-600 text-sm sm:text-base">Email: {user.email}</p>
           </section>
-          
+
           <section className="bg-white p-6 rounded-xl shadow-md space-y-4">
             <h3 className="text-lg font-semibold">Notes</h3>
             <button
@@ -386,7 +410,7 @@ const Dashboard = ({ user, notes, onLogout, onAddNote, onDeleteNote }) => {
               {notes.length === 0 ? (
                 <p className="text-center text-gray-500">You have no notes yet.</p>
               ) : (
-                notes.map((note) => (
+                notes.map((note: Note) => (
                   <div key={note._id} className="bg-gray-100 p-4 rounded-lg flex justify-between items-center">
                     <h4 className="text-sm font-semibold">{note.title}</h4>
                     <button onClick={() => handleDeleteNote(note._id)} className="text-red-500 hover:text-red-700 transition-colors">
@@ -441,8 +465,8 @@ const Dashboard = ({ user, notes, onLogout, onAddNote, onDeleteNote }) => {
 
 const App = () => {
   const [currentPage, setCurrentPage] = useState(PageEnum.LOGIN);
-  const [user, setUser] = useState(null);
-  const [notes, setNotes] = useState([]);
+  const [user, setUser] = useState<User | null>(null);
+  const [notes, setNotes] = useState<Note[]>([]);
 
   const fetchUserData = async () => {
     const token = localStorage.getItem('token');
