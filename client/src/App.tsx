@@ -7,7 +7,8 @@ const PageEnum = {
   DASHBOARD: 'dashboard',
 };
 
-const API_BASE_URL = 'http://localhost:5000/api';
+// const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'https://take-notes-sigma.vercel.app/api';
 
 interface User {
   _id: string;
